@@ -52,3 +52,4 @@ def tomarDatosTicket(page):
     fechaAtendido = values[6]
     descripcion = values[7]
     numeroContacto = values[8]
+    return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto

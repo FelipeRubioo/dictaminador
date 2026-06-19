@@ -1,4 +1,5 @@
 import pipojFunctions
+import directorioFunctions
 from playwright.sync_api import sync_playwright
 
 def run():
@@ -13,7 +14,13 @@ def run():
         page.wait_for_timeout(10000)  # 10,000 ms = 10 seconds, espera al autenticador
         pipojFunctions.abrirModulo(page,modulo)
         pipojFunctions.abrirTicket(page,folio,anio)
-        pipojFunctions.tomarDatosTicket(page)
+        unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto = pipojFunctions.tomarDatosTicket(page)
+        
+        #obtener datos de titular de la unidad y su puesto
+        page2 = browser.new_page()
+        page2.goto('https://adison.stjsonora.gob.mx/Institucion/Directorio/#')
+        nombreTitular, puestoTiutlar = directorioFunctions.buscarUnidad(page2,unidad)
+
 
 if __name__ == "__main__":
     run()
