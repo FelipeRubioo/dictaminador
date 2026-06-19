@@ -1,5 +1,6 @@
 import pipojFunctions
 import directorioFunctions
+import fileGeneration
 from playwright.sync_api import sync_playwright
 
 def run():
@@ -19,7 +20,8 @@ def run():
         #obtener datos de titular de la unidad y su puesto
         page2 = browser.new_page()
         page2.goto('https://adison.stjsonora.gob.mx/Institucion/Directorio/#')
-        nombreTitular, puestoTiutlar = directorioFunctions.buscarUnidad(page2,unidad)
+        nombreTitular, puestoTitular = directorioFunctions.buscarUnidad(page2,unidad)
+        fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
 
 
 if __name__ == "__main__":
