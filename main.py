@@ -13,7 +13,7 @@ def run():
         page.wait_for_timeout(10000)  # 10,000 ms = 10 seconds, espera al autenticador
         pipojFunctions.abrirModulo(page,modulo)
         pipojFunctions.abrirTicket(page,folio,anio)
-
+        pipojFunctions.tomarDatosTicket(page)
 
 if __name__ == "__main__":
     run()
