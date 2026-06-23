@@ -23,12 +23,13 @@ def run():
         page2.goto('https://adison.stjsonora.gob.mx/Institucion/Directorio/#')
         nombreTitular, puestoTitular = directorioFunctions.buscarUnidad(page2,unidad)
         fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
-        page2.close()
+
         #obtener numero de dictamen
         page3 = browser.new_page()
-        page3.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/_layouts/15/listforms.aspx?cid=NDQ4Mjk4NTYtYzE1OC00MWUxLTgzZjYtZGQ3MjdiNWNjNjNh&nav=M2U4YzZiNDQtZTQ4Ni00OTRmLTlkZTItNWQ5YTFmOTVlYzQz')
+
         folioDictamen.loginInstitucional(page3)
         page3.wait_for_timeout(10000) 
-
+        #llenar formulario de solicitud de folio de dictamen
+        folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,descripcion,elaboro)
 if __name__ == "__main__":
     run()
