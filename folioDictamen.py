@@ -3,25 +3,8 @@ from requests import options
 import config
 
 
-def loginInstitucional(page):
+def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,inventario):
     page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/_layouts/15/listforms.aspx?cid=NDQ4Mjk4NTYtYzE1OC00MWUxLTgzZjYtZGQ3MjdiNWNjNjNh&nav=M2U4YzZiNDQtZTQ4Ni00OTRmLTlkZTItNWQ5YTFmOTVlYzQz',wait_until="domcontentloaded")
-    #poner correo
-    page.wait_for_selector('#i0116')
-    page.locator('#i0116').fill(config.USER)
-    page.wait_for_timeout(2000)
-    page.click('#idSIButton9')
-
-    #poner contraseña
-    page.wait_for_selector('#i0118')
-    page.locator('#i0118').fill(config.PASSWORD)
-    page.wait_for_timeout(2000)
-    page.click('#idSIButton9')
-
-    #no mantener sesión iniciada
-    page.wait_for_selector('#idBtn_Back')
-    page.click('#idBtn_Back')
-
-def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro):
     #esperar a que carguen todos los campos
     page.wait_for_selector('#combobox-id__13') #elaborado por
     page.wait_for_selector('#TextField15') #ticket de soporte
@@ -30,17 +13,27 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro):
     page.wait_for_selector('#TextField29') #Descripcion de la falla
     page.wait_for_selector('#TextField35') #Año
     page.wait_for_selector('#TextField41') #Numero Inventario
+    page.wait_for_selector('#form-submit-button') #boton de enviar
 
-    #llenado de campos
+    #llenado de campos, primero los normales, despues los de cuentas
+    page.wait_for_timeout(200)
+    page.locator('#TextField23').fill(unidad) #unidad
+    page.locator('#TextField29').fill(descripcion) #descripcion de la fallas
+    page.locator('#TextField35').fill(anio) #año
+    page.locator('#TextField41').fill(inventario) #año
+    folioAnio = f"{folio}/{anio}"
+    page.wait_for_timeout(200)
+    page.locator('#TextField15').fill(folioAnio) #ticket de soporte
+
     page.locator('#combobox-id__13').fill(config.NOMBRESTJ) #elaborado por
     picker = page.locator('#combobox-id__13')
     page.wait_for_timeout(6000)
     picker.press('Enter')
 
-    folioAnio = f"{folio}/{anio}"
-    page.locator('#TextField15').fill(folioAnio) #ticket de soporte
     
+    page.wait_for_timeout(200)
     page.locator('#combobox-id__21').fill(solicitante) #persona solicitante
+    page.wait_for_timeout(200)
     #si la persona solicitante no existe, se agrega quien genero el ticket, si ni una de las dos tiene cuenta, se pone el mismo tecnico
     people = [solicitante,elaboro, config.NOMBRESTJ]
     picker = page.locator('#combobox-id__21')
@@ -53,8 +46,11 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro):
             break
         else:
             print(f"No suggestions for {person}")
+
+    button = page.locator('#form-submit-button')
+    page.wait_for_timeout(2000)
+    button.click()
     
-    page.locator('#TextField23').fill(unidad) #unidad
-    page.locator('#TextField29').fill(descripcion) #descripcion de la falla
-    page.locator('#TextField35').fill(anio) #año
+def obtenerFolio(page):
+    page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/Lists/Solicitud%20Dolio%20Dictamen/AllItems.aspx?sortField=FechaSolFolio&isAscending=false&viewid=6c8423da%2D1ff8%2D446a%2Db78e%2D65adc3bfef9d',wait_until="domcontentloaded")
     page.wait_for_timeout(10000)
