@@ -36,10 +36,12 @@ def run():
             
             #obtener numero de dictamen de teams
             page4 = context.new_page()
-            folioDictamen.obtenerFolio(page4)
+            numeroDictamen = folioDictamen.obtenerFolio(page4)
 
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)
+            context = browser.new_context()
+            return context
             
         def verifyContext(context):
             if not Path(config.AUTH_FILE).exists():
@@ -57,7 +59,7 @@ def run():
                 page.goto('https://pipoj.stjsonora.gob.mx/App/#')
                 if page.locator('#LoginButton').count() > 0:
                     print("Login page detected, deleting current context and creating new one")
-                    deleteContext()
+                    context = deleteContext()
                     verifyContext(context)
                 else:
                     print("context is valid,starting automation...")

@@ -5,6 +5,9 @@ import config
 
 def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,inventario):
     page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/_layouts/15/listforms.aspx?cid=NDQ4Mjk4NTYtYzE1OC00MWUxLTgzZjYtZGQ3MjdiNWNjNjNh&nav=M2U4YzZiNDQtZTQ4Ni00OTRmLTlkZTItNWQ5YTFmOTVlYzQz',wait_until="domcontentloaded")
+    if(len(inventario)==0):
+        inventario = f"no existe numero de inventario para el equipo del ticket {folio}/{anio}"
+
     #esperar a que carguen todos los campos
     page.wait_for_selector('#combobox-id__13') #elaborado por
     page.wait_for_selector('#TextField15') #ticket de soporte
@@ -53,4 +56,30 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
     
 def obtenerFolio(page):
     page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/Lists/Solicitud%20Dolio%20Dictamen/AllItems.aspx?sortField=FechaSolFolio&isAscending=false&viewid=6c8423da%2D1ff8%2D446a%2Db78e%2D65adc3bfef9d',wait_until="domcontentloaded")
+    page.wait_for_selector('#virtualized-list_4_page-0')
+    rows = page.locator(
+    '#virtualized-list_4_page-0 .row_62580b62.perfRow_62580b62'
+    )
+    row_count = rows.count()
+    print(f"inspecting {row_count} rows")
+    for i in range(row_count):
+        text = (
+            rows.nth(i)
+            .locator('[data-field-index="0"]')
+            .inner_text()
+            .strip()
+        )
+        parts = text.split()
+        if len(parts) >= 2 and parts[-1].isdigit():
+            number = int(parts[-1])
+            print(f"number {number} found in row {i}")
+
+            top_row_number = number + i
+            print(f"Top number is {number} at row {i}")
+            print(f"Top row should be {top_row_number}")
+            break
+        else:
+            print(f"number not found in row {i}")
+    return top_row_number
+
     page.wait_for_timeout(10000)
