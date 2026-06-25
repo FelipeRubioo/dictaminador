@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Automation Form</title>
+
+    <style>
+        #tipo_baja_container {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Dictaminador</h2>
+
+    <form method="POST" action="/submit">
+
+        <label>Tipo de dictamen:</label><br>
+        <input type="radio" name="tipo_dictamen" value="baja" onclick="toggleTipoBaja()">
+        <label>Baja</label>
+        <input type="radio" name="tipo_dictamen" value="actualizacion" onclick="toggleTipoBaja()">
+        <label>Actualización</label>
+        <br><br>
+
+        <!-- Dynamic section -->
+        <div id="tipo_baja_container">
+
+            <label>Tipo de baja:</label><br>
+
+            <select name="tipo_baja">
+                <option value="regulador">Regulador</option>
+                <option value="computadora">Computadora</option>
+                <option value="impresora">Impresora</option>
+                <option value="monitor">Monitor</option>
+            </select>
+
+        </div>
+        <label>Folio de ticket:</label><br>
+        <input type="text" name="folio" placeholder="Folio" required style="width:100px;">
+        /
+        <input type="text" name="anio" placeholder="Año" required style="width:80px;">
+        <br><br>
+
+        <label>Informacion del equipo:</label><br>
+        <label>Número de inventario (si no hay, dejar vacio):</label><br>
+        <input type="text" name="numeroInventario" placeholder="Número de inventario">
+
+        <br><br>
+
+        <label>Número de serie (si no hay, dejar vacio):</label><br>
+        <input type="text" name="numeroSerie" placeholder="Número de serie">
+
+        <br><br>
+
+        <label>Diagnóstico:</label><br>
+        <textarea name="diagnostico" placeholder="Escribe el diagnóstico aquí..." rows="5" cols="40"
+            required></textarea>
+
+        <br><br>
+        <button type="submit">Enviar</button>
+
+    </form>
+
+
+    <script>
+        function toggleTipoBaja() {
+            const selected = document.querySelector('input[name="tipo_dictamen"]:checked');
+            const container = document.getElementById("tipo_baja_container");
+
+            if (selected && selected.value === "baja") {
+                container.style.display = "block";
+            } else {
+                container.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>

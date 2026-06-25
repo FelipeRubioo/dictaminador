@@ -16,7 +16,7 @@ def loginMS(context):
     page.wait_for_timeout(2000)
     page.click('#idSIButton9')
 
-    #no mantener sesión iniciada
+    #mantner sesion iniciada
     page.wait_for_selector('#idSIButton9')
     page.click('#idSIButton9')
     #wait for the selectors to save the context
@@ -27,6 +27,7 @@ def loginMS(context):
     page.wait_for_selector('#TextField29') #Descripcion de la falla
     page.wait_for_selector('#TextField35') #Año
     page.wait_for_selector('#TextField41') #Numero Inventario
+    page.close()
 
 def loginPipoj(context):
     page = context.new_page()
@@ -41,3 +42,4 @@ def loginPipoj(context):
     page.click('#LoginButton')
 
     page.wait_for_timeout(10000)  # 10,000 ms = 10 seconds, espera al autenticador
+    page.close()

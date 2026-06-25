@@ -1,18 +1,28 @@
-import pipojFunctions
-import directorioFunctions
-import fileGeneration
-import folioDictamen
-import config
-import Logins
+import pipojFunctions,directorioFunctions,fileGeneration,folioDictamen,config,Logins
 from playwright.sync_api import sync_playwright
 from pathlib import Path
+from flask import Flask, render_template, request
 
+app = Flask(__name__)
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-def run():
+@app.route("/submit", methods=["POST"])
+def submit():
     modulo = "tickets administrador"
-    folio,anio= input("escribe folio del ticket (folio/año):").split("/")
-    inventario = input("escribe el numero de inventario:")
+    tipoDictamen = request.form["tipo_dictamen"]
+    if(tipoDictamen == "baja"):
+        tipoBaja = request.form["tipo_baja"]
+    folio = request.form["folio"]
+    anio = request.form["anio"]
+    numeroInventario = request.form["numeroInventario"]
+    numeroSerie = request.form["numeroSerie"]
+    diagnostico = request.form["diagnostico"]
+    print(request.form)
+    print(request.form.get("numeroInventario"))
+    print(request.form.get("numeroSerie"))
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False) #set true if dont want to see browser
         context = browser.new_context()
@@ -22,22 +32,24 @@ def run():
             page1.wait_for_timeout(5000) #espera a que cargue pipoj
             pipojFunctions.abrirModulo(page1,modulo)
             pipojFunctions.abrirTicket(page1,folio,anio)
-            unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto = pipojFunctions.tomarDatosTicket(page1)
+            unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra = pipojFunctions.tomarDatosTicket(page1,numeroInventario,numeroSerie)
             
             #obtener datos de titular de la unidad y su puesto
             page2 = context.new_page()
             page2.goto('https://adison.stjsonora.gob.mx/Institucion/Directorio/#',wait_until="domcontentloaded")
             nombreTitular, puestoTitular = directorioFunctions.buscarUnidad(page2,unidad)
-            fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
+            
             
             page3 = context.new_page()
             #llenar formulario de solicitud de folio de dictamen
-            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,descripcion,elaboro,inventario)
+            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,descripcion,elaboro,numeroInventario)
             
             #obtener numero de dictamen de teams
             page4 = context.new_page()
             numeroDictamen = folioDictamen.obtenerFolio(page4)
-
+            
+            #generar el dictamen
+            #fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)
             context = browser.new_context()
@@ -68,4 +80,5 @@ def run():
         
         
 if __name__ == "__main__":
-    run()
+    app.run(debug=True)
+    

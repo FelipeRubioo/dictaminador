@@ -30,7 +30,7 @@ def abrirTicket(page,folio,anio):
     button.click()
     page.wait_for_timeout(10000) 
 
-def tomarDatosTicket(page):
+def tomarDatosTicket(page,numeroInventario,numeroSerie):
     rows = page.locator('.panel-body .row')
     values = []
 
@@ -52,4 +52,51 @@ def tomarDatosTicket(page):
     fechaAtendido = values[6]
     descripcion = values[7]
     numeroContacto = values[8]
-    return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto
+    modelo,serie, fechaCompra = tomarDatosEquipo(page,numeroInventario,numeroSerie)
+    return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,modelo,serie,fechaCompra
+
+def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
+     modelo=""
+     fechaCompra=""
+     page.wait_for_selector('#btnOpenModalActivo')
+     page.click('#btnOpenModalActivo')
+    
+     def obtenerDatos():
+          page.wait_for_selector('#MD_BuscarActivo_lblModelo')
+          page.wait_for_selector('#MD_BuscarActivo_lblNumeroSerie')
+          page.wait_for_selector('#MD_BuscarActivo_lblFechaCompra')
+          modelo = page.locator("#MD_BuscarActivo_lblModelo").text_content().strip()
+          numeroSerie = page.locator("#MD_BuscarActivo_lblNumeroSerie").text_content().strip()
+          fechaCompra = page.locator("#MD_BuscarActivo_lblFechaCompra").text_content().strip()
+          print(f"modelo:{modelo},numeroSerie:{numeroSerie},fechaCompra:{fechaCompra}")
+          return modelo,numeroSerie,fechaCompra
+     
+     def verificarError():
+         #si busqueda de inventario da error, intentar busqueda por numero de serie
+         if page.locator('#modalContentId').count() > 0:
+                    print(f"no se encontro un activo con numero de inventario {numeroInventario}")
+                    page.keyboard.press("Enter")
+                    return True
+                    
+     #busqueda por inventario
+     if(len(numeroInventario)>0):
+         page.wait_for_selector('#MD_BuscarActivo_Txt_Clave')
+         page.locator('#MD_BuscarActivo_Txt_Clave').fill(numeroInventario)
+         page.click('#MD_BuscarActivo_BtnBuscar')
+         if verificarError():
+             busquedaSerie()
+         else: 
+            modelo,numeroSerie,fechaCompra = obtenerDatos()
+     else:
+        busquedaSerie()
+     #busqueda por numero de serie
+     def busquedaSerie():
+        if(len(numeroSerie)>0):
+            page.wait_for_selector('#MD_BuscarActivo_Txt_Serie')
+            page.locator('#MD_BuscarActivo_Txt_Serie').fill(numeroSerie)
+            page.click('#MD_BuscarActivo_BtnBuscar')
+            if verificarError():
+                print(f"no se encontro activo por numero de serie {numeroSerie}")
+            else: 
+                modelo,numeroSerie,fechaCompra = obtenerDatos()
+     return modelo,numeroSerie,fechaCompra
