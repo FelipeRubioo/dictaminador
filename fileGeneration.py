@@ -38,7 +38,14 @@ def agregarEncabezado(doc: Document,numeroDictamen,folio,anio):
       run = paragraph2.add_run(stacked_text)
       run.bold = True
       run.font.size = Pt(10)
-      
+
+def agregarTitular(doc: Document,nombreTitular, puestoTitular,unidad):
+    stacked_text = f"\t{nombreTitular}\n\t{puestoTitular}\n\t{unidad}\n\tPresente.-"
+    paragraph = doc.add_paragraph()
+    run = paragraph.add_run(stacked_text)
+    run.bold = True
+    run.font.size = Pt(12)
+
 def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen):
     #creates file
     doc = Document()
@@ -47,7 +54,7 @@ def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro
     style.font.name = 'Arial'
     #make all changes to file
     agregarEncabezado(doc,numeroDictamen,folio,anio)
-
+    agregarTitular(doc,nombreTitular,puestoTitular,unidad)
     #doc.add_paragraph("Contenido del documento...")
     #generates file     
     doc.save("output.docx")
