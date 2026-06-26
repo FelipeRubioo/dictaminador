@@ -4,10 +4,13 @@ import config
 
 
 def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,inventario):
+    inventarioFormato = ""
     page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/_layouts/15/listforms.aspx?cid=NDQ4Mjk4NTYtYzE1OC00MWUxLTgzZjYtZGQ3MjdiNWNjNjNh&nav=M2U4YzZiNDQtZTQ4Ni00OTRmLTlkZTItNWQ5YTFmOTVlYzQz',wait_until="domcontentloaded")
     if(len(inventario)==0):
-        inventario = f"no existe numero de inventario para el equipo del ticket {folio}/{anio}"
-
+        inventarioFormato = f"no existe numero de inventario para el equipo del ticket {folio}/{anio}"
+    #evita error de que ya se solicito dictamen para este equipo 
+    if(len(inventario)>0):
+        inventarioFormato = f"ticket {folio}/{anio} con numero de inventario {inventario}"
     #esperar a que carguen todos los campos
     page.wait_for_selector('#combobox-id__13') #elaborado por
     page.wait_for_selector('#TextField15') #ticket de soporte
@@ -23,7 +26,7 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
     page.locator('#TextField23').fill(unidad) #unidad
     page.locator('#TextField29').fill(descripcion) #descripcion de la fallas
     page.locator('#TextField35').fill(anio) #año
-    page.locator('#TextField41').fill(inventario) #año
+    page.locator('#TextField41').fill(inventarioFormato) #año
     folioAnio = f"{folio}/{anio}"
     page.wait_for_timeout(200)
     page.locator('#TextField15').fill(folioAnio) #ticket de soporte
@@ -80,6 +83,5 @@ def obtenerFolio(page):
             break
         else:
             print(f"number not found in row {i}")
+    page.close()
     return top_row_number
-
-    page.wait_for_timeout(10000)
