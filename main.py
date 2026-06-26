@@ -20,9 +20,7 @@ def submit():
     numeroInventario = request.form["numeroInventario"]
     numeroSerie = request.form["numeroSerie"]
     diagnostico = request.form["diagnostico"]
-    print(request.form)
-    print(request.form.get("numeroInventario"))
-    print(request.form.get("numeroSerie"))
+    
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False) #set true if dont want to see browser
         context = browser.new_context()
@@ -52,8 +50,7 @@ def submit():
             #fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)
-            context = browser.new_context()
-            return context
+            
             
         def verifyContext(context):
             if not Path(config.AUTH_FILE).exists():
@@ -71,7 +68,7 @@ def submit():
                 page.goto('https://pipoj.stjsonora.gob.mx/App/#')
                 if page.locator('#LoginButton').count() > 0:
                     print("Login page detected, deleting current context and creating new one")
-                    context = deleteContext()
+                    deleteContext()
                     verifyContext(context)
                 else:
                     print("context is valid,starting automation...")
