@@ -5,7 +5,7 @@
     <title>Automation Form</title>
 
     <style>
-        #tipo_baja_container {
+        #tipo_baja_container, #infoComponente {
             display: none;
             margin-top: 10px;
         }
@@ -14,25 +14,25 @@
 
 <body>
 
-    <h2>Dictaminador</h2>
+    <h1>Dictaminador</h1>
 
-    <form method="POST" action="/submit">
+    <form method="POST" action="/submit" enctype="multipart/form-data">
 
         <label>Tipo de dictamen:</label><br>
-        <input type="radio" name="tipo_dictamen" value="baja" onclick="toggleTipoBaja()">
+        <input type="radio" name="tipo_dictamen" value="baja" onclick="actualizarForm()">
         <label>Baja</label>
-        <input type="radio" name="tipo_dictamen" value="actualizacion" onclick="toggleTipoBaja()">
+        <input type="radio" name="tipo_dictamen" value="actualizacion" onclick="actualizarForm()">
         <label>Actualización</label>
         <br><br>
 
-        <!-- Dynamic section -->
         <div id="tipo_baja_container">
 
             <label>Tipo de baja:</label><br>
 
             <select name="tipo_baja">
-                <option value="regulador">Regulador</option>
                 <option value="computadora">Computadora</option>
+                <option value="regulador">Regulador</option>
+                <option value="laptop">Laptop</option>
                 <option value="impresora">Impresora</option>
                 <option value="monitor">Monitor</option>
             </select>
@@ -44,7 +44,7 @@
         <input type="text" name="anio" placeholder="Año" required style="width:80px;">
         <br><br>
 
-        <label>Informacion del equipo:</label><br>
+        <h3>Informacion del equipo:</h3>
         <label>Número de inventario (si no hay, dejar vacio):</label><br>
         <input type="text" name="numeroInventario" placeholder="Número de inventario">
 
@@ -55,25 +55,49 @@
 
         <br><br>
 
+        <label>Modelo (si se encuentra activo, se pondra):</label><br>
+        <input type="text" name="modelo" placeholder="Modelo" aria-required="">
+        <br><br>
+
+        <label>Falla del equipo(para solicitud de folio):</label><br>
+        <input type="text" name="fallaEquipo" placeholder="Falla del equipo" required>
+        <br><br>
+
         <label>Diagnóstico:</label><br>
         <textarea name="diagnostico" placeholder="Escribe el diagnóstico aquí..." rows="5" cols="40"
             required></textarea>
-
         <br><br>
+        <label>Imagen Diagnóstico (opcional):</label><br>
+        <input type="file" name="img_diagnostico" accept="image/*">
+        <br><br>
+
+        <div id="infoComponente">
+            <h3>Informacion del componente a comprar:</h3>
+            <label>Componente a comprar:</label><br>
+            <input type="text" name="componente" placeholder="Componente">
+            <br><br>
+
+            <label>Link de compra:</label><br>
+            <input type="text" name="linkCompra" placeholder="Link de compra">
+        </div>
+        
         <button type="submit">Enviar</button>
 
     </form>
 
 
     <script>
-        function toggleTipoBaja() {
+        function actualizarForm() {
             const selected = document.querySelector('input[name="tipo_dictamen"]:checked');
-            const container = document.getElementById("tipo_baja_container");
+            const containerBaja = document.getElementById("tipo_baja_container");
+            const containerComponente = document.getElementById("infoComponente");
 
             if (selected && selected.value === "baja") {
-                container.style.display = "block";
-            } else {
-                container.style.display = "none";
+                containerBaja.style.display = "block";
+                containerComponente.style.display = "none";
+            } else if (selected && selected.value === "actualizacion"){
+                containerComponente.style.display = "block";
+                containerBaja.style.display = "none";
             }
         }
     </script>

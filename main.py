@@ -2,8 +2,13 @@ import pipojFunctions,directorioFunctions,fileGeneration,folioDictamen,config,Lo
 from playwright.sync_api import sync_playwright
 from pathlib import Path
 from flask import Flask, render_template, request
+import os
 
 app = Flask(__name__)
+
+# Create the upload folder if it does not exist
+imgDir = Path(__file__).parent / "images"
+os.makedirs(imgDir, exist_ok=True)
 
 @app.route("/")
 def index():
@@ -11,6 +16,8 @@ def index():
 
 @app.route("/submit", methods=["POST"])
 def submit():
+    tipoBaja = ""
+    imgDiagnosticoPath = ""
     modulo = "tickets administrador"
     tipoDictamen = request.form["tipo_dictamen"]
     if(tipoDictamen == "baja"):
@@ -19,8 +26,17 @@ def submit():
     anio = request.form["anio"]
     numeroInventario = request.form["numeroInventario"]
     numeroSerie = request.form["numeroSerie"]
+    modelo = request.form["modelo"]
+    fallaEquipo = request.form["fallaEquipo"]
     diagnostico = request.form["diagnostico"]
-    
+    imgDiagnostico = request.files.get("img_diagnostico")
+    if imgDiagnostico and imgDiagnostico.filename != "":
+        imgDiagnosticoPath = os.path.join(imgDir,imgDiagnostico.filename)
+        imgDiagnostico.save(imgDiagnosticoPath)
+    componente = request.form["componente"]
+    linkCompra = request.form["linkCompra"]
+
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False) #set true if dont want to see browser
         context = browser.new_context()
@@ -30,7 +46,7 @@ def submit():
             page1.wait_for_timeout(5000) #espera a que cargue pipoj
             pipojFunctions.abrirModulo(page1,modulo)
             pipojFunctions.abrirTicket(page1,folio,anio)
-            unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra = pipojFunctions.tomarDatosTicket(page1,numeroInventario,numeroSerie)
+            unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,modelo,inventario,serie,fechaCompra = pipojFunctions.tomarDatosTicket(page1,numeroInventario,numeroSerie)
             
             #obtener datos de titular de la unidad y su puesto
             page2 = context.new_page()
@@ -40,14 +56,14 @@ def submit():
             
             page3 = context.new_page()
             #llenar formulario de solicitud de folio de dictamen
-            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,descripcion,elaboro,numeroInventario)
+            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,fallaEquipo,elaboro,inventario)
             
             #obtener numero de dictamen de teams
             page4 = context.new_page()
             numeroDictamen = folioDictamen.obtenerFolio(page4)
             
             #generar el dictamen
-            #fileGeneration.generarDictamen(unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,nombreTitular, puestoTitular)
+            fileGeneration.generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath,tipoBaja,componente,linkCompra)
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)
             
@@ -74,7 +90,7 @@ def submit():
                     print("context is valid,starting automation...")
                     runAutomation(context)
         verifyContext(context)
-        
+    return "el dictaminador dictamino..."
         
 if __name__ == "__main__":
     app.run(debug=True)

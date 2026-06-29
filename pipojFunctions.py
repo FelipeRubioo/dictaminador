@@ -58,8 +58,8 @@ def tomarDatosTicket(page,numeroInventario,numeroSerie):
         fechaAtendido = values[6]
         descripcion = values[7]
         numeroContacto = values[8]
-    modelo,serie, fechaCompra = tomarDatosEquipo(page,numeroInventario,numeroSerie)
-    return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,modelo,serie,fechaCompra
+    modelo,inventario,serie, fechaCompra = tomarDatosEquipo(page,numeroInventario,numeroSerie)
+    return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,modelo,inventario,serie,fechaCompra
 
 def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
      modelo = ""
@@ -71,15 +71,16 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
           page.wait_for_selector('#MD_BuscarActivo_lblModelo')
           page.wait_for_selector('#MD_BuscarActivo_lblNumeroSerie')
           page.wait_for_selector('#MD_BuscarActivo_lblFechaCompra')
+          page.wait_for_selector('#MD_BuscarActivo_lblClaveInventario')
           
           modelo = page.locator("#MD_BuscarActivo_lblModelo").text_content().strip()
           numeroSerie = page.locator("#MD_BuscarActivo_lblNumeroSerie").text_content().strip()
           fechaCompra= page.locator("#MD_BuscarActivo_lblFechaCompra").text_content().strip()
-          
-          print(f"modelo:{modelo},numeroSerie:{numeroSerie},fechaCompra:{fechaCompra}")
-          return modelo,numeroSerie,fechaCompra
+          numeroInventario = page.locator("#MD_BuscarActivo_lblClaveInventario").text_content().strip()
+          print(f"modelo:{modelo},numeroInventario:{numeroInventario}numeroSerie:{numeroSerie},fechaCompra:{fechaCompra}")
+          return modelo,numeroInventario,numeroSerie,fechaCompra
      #busqueda por numero de serie
-     def busquedaSerie(numeroSerie):
+     def busquedaSerie(numeroInventario,numeroSerie):
          if(len(numeroSerie)>0):
             page.wait_for_selector('#MD_BuscarActivo_Txt_Serie')
             page.locator('#MD_BuscarActivo_Txt_Serie').fill(numeroSerie)
@@ -87,7 +88,7 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
             if verificarError():
                 print(f"no se encontro activo por numero de serie {numeroSerie}")
             else: 
-                modelo, numeroSerie, fechaCompra = obtenerDatos()
+                modelo,numeroInventario, numeroSerie, fechaCompra = obtenerDatos()
                 return modelo,numeroSerie,fechaCompra
      def verificarError():
          #si busqueda de inventario da error, intentar busqueda por numero de serie
@@ -104,10 +105,10 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
          page.locator('#MD_BuscarActivo_Txt_Clave').fill(numeroInventario)
          page.click('#MD_BuscarActivo_BtnBuscar')
          if verificarError():
-             modelo, numeroSerie, fechaCompra = busquedaSerie(numeroSerie)
+             modelo, numeroSerie, fechaCompra = busquedaSerie(numeroInventario,numeroSerie)
          else: 
-           modelo, numeroSerie, fechaCompra =  obtenerDatos()
+           modelo,numeroInventario, numeroSerie, fechaCompra =  obtenerDatos()
      else:
-        modelo, numeroSerie, fechaCompra = busquedaSerie(numeroSerie)
+        modelo, numeroSerie, fechaCompra = busquedaSerie(numeroInventario,numeroSerie)
      
-     return modelo,numeroSerie,fechaCompra
+     return modelo,numeroInventario,numeroSerie,fechaCompra

@@ -53,14 +53,13 @@ def agregarIntroduccion(doc: Document,folio,anio):
     run = paragraph.add_run(stacked_text)
     run.font.size = Pt(11)
 
-def agregarTabla(doc: Document,solicitante,tipoEquipo,modelo,inventario,serie,fechaCompra):
-    table = doc.add_table(rows=6, cols=2)
+def agregarTabla(doc: Document,solicitante,modelo,inventario,serie,fechaCompra):
+    table = doc.add_table(rows=5, cols=2)
     table.style = 'Table Grid'
 
     # Fill in the table with data
     data = [
         ("Usuario:", solicitante),
-        ("Tipo de Equipo:", tipoEquipo),
         ("Modelo:", modelo),
         ("Número de Inventario:", inventario),
         ("Número de Serie:", serie),
@@ -74,10 +73,13 @@ def agregarTabla(doc: Document,solicitante,tipoEquipo,modelo,inventario,serie,fe
         run = row.cells[1].paragraphs[0].runs[0]
         run.font.color.rgb = RGBColor(0, 0, 255)  # Blue
 
-def agregarDiagnostico(doc: Document,diagnostico):
+def agregarDiagnostico(doc: Document,diagnostico,imgDiagnosticoPath=""):
     paragraph = doc.add_paragraph()
-    run = paragraph.add_run(diagnostico)
+    run = paragraph.add_run(f"\n{diagnostico}")
     run.font.size = Pt(11)
+    paragraph = doc.add_paragraph()
+    run2 = paragraph.add_run()
+    run2.add_picture(str(imgDiagnosticoPath),width=Cm(5))
 
 def agregarConclusion(doc: Document,tipoDictamen):
     if tipoDictamen == "baja":
@@ -126,7 +128,7 @@ def agregarOficio(doc: Document):
     run.add_picture(str(oficio_path))
 
 
-def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoEquipo,tipoDictamen,diagnostico,tipoBaja="",componente="",linkCompra=""):
+def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath="",tipoBaja="",componente="",linkCompra=""):
     #creates file
     doc = Document()
     #set global style
@@ -136,8 +138,8 @@ def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro
     agregarEncabezado(doc,numeroDictamen,folio,anio)
     agregarTitular(doc,nombreTitular,puestoTitular,unidad)
     agregarIntroduccion(doc,folio,anio)
-    agregarTabla(doc,solicitante,tipoEquipo,modelo,inventario,serie,fechaCompra)
-    agregarDiagnostico(doc,diagnostico)
+    agregarTabla(doc,solicitante,modelo,inventario,serie,fechaCompra)
+    agregarDiagnostico(doc,diagnostico,imgDiagnosticoPath)
     agregarConclusion(doc,tipoDictamen)
     agregarRecomendacion(doc,tipoDictamen,tipoBaja,componente,linkCompra)
     agregarRemitente(doc)
