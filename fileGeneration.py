@@ -4,6 +4,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from datetime import datetime
 from docx.shared import Cm, Pt, RGBColor
+import config
 
     
 def get_spanish_month(month_number):
@@ -80,15 +81,52 @@ def agregarDiagnostico(doc: Document,diagnostico):
 
 def agregarConclusion(doc: Document,tipoDictamen):
     if tipoDictamen == "baja":
-        conclusion_text = f"El equipo listado es candidato para BAJA, dando seguimiento al oficio de 'Requisitos mínimos para equipos de cómputo' con referencia DGSC-285/2023 del 17 de octubre del 2023, donde cito: 'De igual manera, se establece que, para que los equipos actuales sean considerados candidatos a actualización de componentes como la RAM y el Disco Duro, deben cumplir con las siguientes características: una placa madre que soporte al menos 16GB de RAM, un procesador Core i3 de octava generación en adelante, y un tiempo de adquisición no mayor a 5 años'."
+        conclusion_text = f"El equipo listado es candidato para REEMPLAZO, dando seguimiento al oficio de 'Requisitos mínimos para equipos de cómputo' con referencia DGSC-285/2023 del 17 de octubre del 2023, donde cito: 'De igual manera, se establece que, para que los equipos actuales sean considerados candidatos a actualización de componentes como la RAM y el Disco Duro, deben cumplir con las siguientes características: una placa madre que soporte al menos 16GB de RAM, un procesador Core i3 de octava generación en adelante, y un tiempo de adquisición no mayor a 5 años'."
     if tipoDictamen == "actualizacion":
         conclusion_text = f"El equipo listado es candidato para ACTUALIZACION, dando seguimiento al oficio de 'Requisitos mínimos para equipos de cómputo' con referencia DGSC-285/2023 del 17 de octubre del 2023, donde cito: 'De igual manera, se establece que, para que los equipos actuales sean considerados candidatos a actualización de componentes como la RAM y el Disco Duro, deben cumplir con las siguientes características: una placa madre que soporte al menos 16GB de RAM, un procesador Core i3 de octava generación en adelante, y un tiempo de adquisición no mayor a 5 años'."
 
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(conclusion_text)
     run.font.size = Pt(11)
-    
-def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoEquipo,tipoDictamen,diagnostico):
+
+def agregarRecomendacion(doc: Document,tipoDictamen,tipoBaja = "",componente="",linkCompra = ""):
+    equipoNuevo = ""
+    if tipoDictamen == "baja":
+        if tipoBaja == "computadora":
+            equipoNuevo = "Lenovo ThinkCentre neo 50a Gen 5 AIO "
+        if tipoBaja == "laptop":
+            equipoNuevo = "Dell Precision 3581 Laptop "
+        if tipoBaja == "impresora":
+            equipoNuevo = "Canon imagerunner 1643ii"
+        if tipoBaja == "regulador":
+            equipoNuevo = "No Break CDP R-UPR1008, 500W, 1000VA, 8 Contactos, Entrada 80-145V, Salida 120V"
+        if tipoBaja == "monitor":
+            equipoNuevo = "Samsung Monitor 24 FHD LS24F330EALXZX"
+        recomendacion_text = f"Se recomienda sustituir el equipo listado por un {equipoNuevo} para garantizar un rendimiento óptimo y cumplir con los estándares de la institución."
+    if tipoDictamen == "actualizacion":
+        recomendacion_text = f"Se recomienda actualizar el equipo listado y comprar el componente: {componente}. Link de compra: {linkCompra}."
+
+    paragraph = doc.add_paragraph()
+    run = paragraph.add_run(recomendacion_text)
+    run.font.size = Pt(11)
+
+def agregarRemitente(doc: Document):
+    stacked_text = f"\t\t\t{config.ABREVIATURA} {config.NOMBRESTJ}\n\t\tSupremo Tribunal de Justicia del Estado de Sonora\n\tDirección General de Tecnologías de la Información y la Comunicación"
+    paragraph = doc.add_paragraph()
+    run = paragraph.add_run(stacked_text)
+    run.bold = True
+    run.font.size = Pt(11)
+
+def agregarOficio(doc: Document):
+    text= "ANEXO OFICIO DGSC-285/2023"
+    oficio_path = Path(__file__).parent / "images" / "oficio.png"
+
+    paragraph = doc.add_paragraph()
+    run = paragraph.add_run(text)
+    run.add_picture(str(oficio_path))
+
+
+def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoEquipo,tipoDictamen,diagnostico,tipoBaja="",componente="",linkCompra=""):
     #creates file
     doc = Document()
     #set global style
@@ -101,6 +139,8 @@ def generarDictamen(folio,anio,unidad,solicitante,elaboro,asignado,fechaRegistro
     agregarTabla(doc,solicitante,tipoEquipo,modelo,inventario,serie,fechaCompra)
     agregarDiagnostico(doc,diagnostico)
     agregarConclusion(doc,tipoDictamen)
-    #doc.add_paragraph("Contenido del documento...")
+    agregarRecomendacion(doc,tipoDictamen,tipoBaja,componente,linkCompra)
+    agregarRemitente(doc)
+    agregarOficio(doc)
     #generates file     
     doc.save("output.docx")
