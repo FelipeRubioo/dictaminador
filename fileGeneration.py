@@ -77,9 +77,10 @@ def agregarDiagnostico(doc: Document,diagnostico,imgDiagnosticoPath=""):
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(f"\n{diagnostico}")
     run.font.size = Pt(11)
-    paragraph = doc.add_paragraph()
-    run2 = paragraph.add_run()
-    run2.add_picture(str(imgDiagnosticoPath),width=Cm(5))
+    if(len(imgDiagnosticoPath)>0):
+        paragraph = doc.add_paragraph()
+        run2 = paragraph.add_run()
+        run2.add_picture(str(imgDiagnosticoPath),width=Cm(5))
 
 def agregarConclusion(doc: Document,tipoDictamen):
     if tipoDictamen == "baja":
@@ -144,5 +145,10 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     agregarRecomendacion(doc,tipoDictamen,tipoBaja,componente,linkCompra)
     agregarRemitente(doc)
     agregarOficio(doc)
-    #generates file     
-    doc.save("output.docx")
+    
+    #crea directorio con el numero del ticket
+    target_dir = Path(fr"{config.DIRECTORIO}\{folio}-{anio}")
+    target_dir.mkdir(parents=True, exist_ok=True)
+    #crea directorio con folio de ticket
+    dictamen_path = target_dir / f"{folio}-{anio}.docx"
+    doc.save(dictamen_path)
