@@ -92,7 +92,7 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
                 modelo,numeroInventario, numeroSerie, fechaCompra = obtenerDatos()
                 return modelo,numeroInventario,numeroSerie,fechaCompra
          else:
-             return "","",numeroSerie, "n/a"
+             return "",numeroInventario,numeroSerie, "n/a"
      def verificarError():
          #si busqueda de inventario da error, intentar busqueda por numero de serie
          page.wait_for_timeout(2000) 
@@ -108,7 +108,7 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
          page.locator('#MD_BuscarActivo_Txt_Clave').fill(numeroInventario)
          page.click('#MD_BuscarActivo_BtnBuscar')
          if verificarError():
-             modelo, numeroSerie, fechaCompra = busquedaSerie(numeroInventario,numeroSerie)
+             modelo, numeroInventario,numeroSerie, fechaCompra = busquedaSerie(numeroInventario,numeroSerie)
          else: 
            modelo,numeroInventario, numeroSerie, fechaCompra =  obtenerDatos()
      else:
