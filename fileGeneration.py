@@ -5,8 +5,9 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from datetime import datetime
 from docx.shared import Cm, Pt, RGBColor
 import config
+from docx2pdf import convert
 
-    
+
 def get_spanish_month(month_number):
     months = [
         "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -152,3 +153,4 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     #crea directorio con folio de ticket
     dictamen_path = target_dir / f"{folio}-{anio}.docx"
     doc.save(dictamen_path)
+    convert(dictamen_path, target_dir / f"{folio}-{anio}.pdf")

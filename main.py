@@ -56,7 +56,7 @@ def submit():
             
             page3 = context.new_page()
             #llenar formulario de solicitud de folio de dictamen
-            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,fallaEquipo,elaboro,inventario)
+            folioDictamen.solicitarFolio(page3,folio,anio,solicitante,unidad,fallaEquipo,elaboro,inventario,nombreTitular)
             
             #obtener numero de dictamen de teams
             page4 = context.new_page()
