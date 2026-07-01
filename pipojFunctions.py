@@ -28,7 +28,8 @@ def abrirTicket(page,folio,anio):
     page.wait_for_selector('#Listatickets')
     button = page.locator('#ListaTickets tbody tr').first.locator('td').nth(8).locator('button')
     button.click()
-    page.wait_for_timeout(10000) 
+    #espera un poco para que cargue informacion del ticket
+    page.wait_for_timeout(3000) 
 
 def tomarDatosTicket(page,numeroInventario,numeroSerie):
     rows = page.locator('.panel-body .row')
@@ -59,6 +60,7 @@ def tomarDatosTicket(page,numeroInventario,numeroSerie):
         descripcion = values[7]
         numeroContacto = values[8]
     modelo,inventario,serie, fechaCompra = tomarDatosEquipo(page,numeroInventario,numeroSerie)
+    page.close()
     return unidad,solicitante,elaboro,asignado,fechaRegistro,tipoServicio,fechaAtendido,descripcion,numeroContacto,modelo,inventario,serie,fechaCompra
 
 def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
@@ -115,3 +117,23 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
         modelo, numeroInventario, numeroSerie, fechaCompra = busquedaSerie(numeroInventario,numeroSerie)
      
      return modelo,numeroInventario,numeroSerie,fechaCompra
+
+def cambiarEstatus(page,estatus, observacion, folio,anio):
+    page.wait_for_timeout(2000) 
+    abrirModulo(page,"tickets administrador")
+    abrirTicket(page,folio,anio)
+
+    page.wait_for_selector('#btnCambiarEstado')
+    page.click('#btnCambiarEstado')
+    #estatus
+    page.wait_for_selector('#select2-IdCatEstatus-container')
+    page.click('#select2-IdCatEstatus-container')
+    #seleccionar proceso
+    page.wait_for_selector('#select2-IdCatEstatus-result-sgta-3')
+    page.click('#select2-IdCatEstatus-result-sgta-3')
+    #page.locator('select2-IdCatEstatus-container').fill(estatus)
+    #page.locator('select2-IdCatEstatus-container').press('Enter')
+    #observacion
+    page.locator('textarea[name="ObservacionTicket[Observacion]"]').fill(observacion)
+    page.wait_for_selector('#btnCambiar')
+    page.click('#btnCambiar')

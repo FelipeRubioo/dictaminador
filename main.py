@@ -1,4 +1,4 @@
-import pipojFunctions,directorioFunctions,fileGeneration,folioDictamen,config,Logins
+import pipojFunctions,directorioFunctions,fileGeneration,folioDictamen,config,Logins, Firma
 from playwright.sync_api import sync_playwright
 from pathlib import Path
 from flask import Flask, render_template, request
@@ -63,7 +63,12 @@ def submit():
             numeroDictamen = folioDictamen.obtenerFolio(page4)
             
             #generar el dictamen
-            fileGeneration.generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath,tipoBaja,componente,linkCompra)
+            pdf_path = fileGeneration.generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath,tipoBaja,componente,linkCompra)
+            Firma.firmarPDF(pdf_path)
+            page = context.new_page()
+            page.goto('https://pipoj.stjsonora.gob.mx/App/#',wait_until="domcontentloaded")
+            pipojFunctions.cambiarEstatus(page,"proceso","esperando autorizacion de dictamen",folio,anio)
+
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)
             
@@ -84,6 +89,7 @@ def submit():
                 page.goto('https://pipoj.stjsonora.gob.mx/App/#')
                 if page.locator('#LoginButton').count() > 0:
                     print("Login page detected, deleting current context and creating new one")
+                    page.close()
                     deleteContext()
                     verifyContext(context)
                 else:

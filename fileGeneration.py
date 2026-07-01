@@ -154,3 +154,4 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     dictamen_path = target_dir / f"{folio}-{anio}.docx"
     doc.save(dictamen_path)
     convert(dictamen_path, target_dir / f"{folio}-{anio}.pdf")
+    return target_dir / f"{folio}-{anio}.pdf"

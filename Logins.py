@@ -13,7 +13,7 @@ def loginMS(context):
 
       #poner contraseña
       page.wait_for_selector('#i0118')
-      page.locator('#i0118').fill(config.PASSWORD)
+      page.locator('#i0118').fill(config.PASSWORDMS)
       page.wait_for_timeout(2000)
       page.click('#idSIButton9')
 
