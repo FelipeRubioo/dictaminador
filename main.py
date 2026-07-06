@@ -67,7 +67,7 @@ def submit():
             Firma.firmarPDF(pdf_path)
             page = context.new_page()
             page.goto('https://pipoj.stjsonora.gob.mx/App/#',wait_until="domcontentloaded")
-            pipojFunctions.cambiarEstatus(page,"proceso","esperando autorizacion de dictamen",folio,anio)
+            pipojFunctions.cambiarEstatus(page,"PROCESO","esperando autorizacion de dictamen",folio,anio)
 
         def deleteContext():
             Path("ms_auth.json").unlink(missing_ok=True)

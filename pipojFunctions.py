@@ -125,15 +125,12 @@ def cambiarEstatus(page,estatus, observacion, folio,anio):
 
     page.wait_for_selector('#btnCambiarEstado')
     page.click('#btnCambiarEstado')
-    #estatus
-    page.wait_for_selector('#select2-IdCatEstatus-container')
-    page.click('#select2-IdCatEstatus-container')
-    #seleccionar proceso
-    page.wait_for_selector('#select2-IdCatEstatus-result-sgta-3')
-    page.click('#select2-IdCatEstatus-result-sgta-3')
-    #page.locator('select2-IdCatEstatus-container').fill(estatus)
-    #page.locator('select2-IdCatEstatus-container').press('Enter')
-    #observacion
-    page.locator('textarea[name="ObservacionTicket[Observacion]"]').fill(observacion)
+    #estatus - 
+    page.wait_for_selector('#IdCatEstatus')
+    page.select_option('#IdCatEstatus', label=estatus)
+    page.eval_on_selector('#IdCatEstatus', "el => window.jQuery && jQuery(el).trigger('change')")
+    #observacion, especifica formularioEstado porque otro textarea con el mismo nombre existe en la pagina
+    page.locator('#FormularioEstado textarea[name="ObservacionTicket[Observacion]"]').fill(observacion)
     page.wait_for_selector('#btnCambiar')
     page.click('#btnCambiar')
+    page.wait_for_timeout(2000)
