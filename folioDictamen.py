@@ -54,12 +54,15 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
 
 def obtenerFolio(page):
     page.goto('https://stjsh.sharepoint.com/sites/SoporteTcnicoySoftwareSTJS-SolicitudFolioDictamenes/Lists/Solicitud%20Dolio%20Dictamen/AllItems.aspx?sortField=FechaSolFolio&isAscending=false&viewid=6c8423da%2D1ff8%2D446a%2Db78e%2D65adc3bfef9d',wait_until="domcontentloaded")
-    page.wait_for_selector('#virtualized-list_4_page-0')
+    # esperar a que exista al menos una celda de la columna "consecutivo"
+    # (no usar clases tipo row_62580b62: son hashes que SharePoint cambia entre versiones)
+    page.wait_for_selector('[id^="virtualized-list"] [data-field-index="0"]')
     rows = page.locator(
-    '#virtualized-list_4_page-0 .row_62580b62.perfRow_62580b62'
+        '[id^="virtualized-list"] [role="row"]:has([data-field-index="0"])'
     )
     row_count = rows.count()
     print(f"inspecting {row_count} rows")
+    top_row_number = None
     for i in range(row_count):
         text = (
             rows.nth(i)
@@ -79,4 +82,9 @@ def obtenerFolio(page):
         else:
             print(f"number not found in row {i}")
     page.close()
+    if top_row_number is None:
+        raise RuntimeError(
+            "No se encontro ningun consecutivo en la lista de SharePoint "
+            f"(se inspeccionaron {row_count} filas)"
+        )
     return top_row_number
