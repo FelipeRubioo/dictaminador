@@ -12,32 +12,32 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
     if(len(inventario)>0):
         inventarioFormato = f"ticket {folio}/{anio} con numero de inventario {inventario}"
     #esperar a que carguen todos los campos
-    page.wait_for_selector('#combobox-id__13') #elaborado por
-    page.wait_for_selector('#TextField15') #ticket de soporte
-    page.wait_for_selector('#combobox-id__21') #persona solicitante
-    page.wait_for_selector('#TextField23') #Unidad
-    page.wait_for_selector('#TextField29') #Descripcion de la falla
-    page.wait_for_selector('#TextField35') #Año
-    page.wait_for_selector('#TextField41') #Numero Inventario
+    page.wait_for_selector('#combobox-id__19') #elaborado por
+    page.wait_for_selector('#TextField21') #ticket de soporte
+    page.wait_for_selector('#combobox-id__27') #persona solicitante
+    page.wait_for_selector('#TextField29') #Unidad
+    page.wait_for_selector('#TextField35') #Descripcion de la falla
+    page.wait_for_selector('#TextField41') #Año
+    page.wait_for_selector('#TextField47') #Numero Inventario
     page.wait_for_selector('#form-submit-button') #boton de enviar
 
     #llenado de campos, primero los normales, despues los de cuentas
     #page.wait_for_timeout(200)
-    page.locator('#TextField23').fill(unidad) #unidad
-    page.locator('#TextField29').fill(descripcion) #descripcion de la fallas
-    page.locator('#TextField35').fill(anio) #año
-    page.locator('#TextField41').fill(inventarioFormato) #año
+    page.locator('#TextField29').fill(unidad) #unidad
+    page.locator('#TextField35').fill(descripcion) #descripcion de la fallas
+    page.locator('#TextField41').fill(anio) #año
+    page.locator('#TextField47').fill(inventarioFormato) #numero de inventario
     folioAnio = f"{folio}/{anio}"
     #page.wait_for_timeout(200)
-    page.locator('#TextField15').fill(folioAnio) #ticket de soporte
+    page.locator('#TextField21').fill(folioAnio) #ticket de soporte
 
-    page.locator('#combobox-id__13').fill(config.NOMBRESTJ) #elaborado por
+    page.locator('#combobox-id__19').fill(config.NOMBRESTJ) #elaborado por
     page.wait_for_timeout(6000)
-    page.locator('#combobox-id__13').press('Enter')
+    page.locator('#combobox-id__19').press('Enter')
 
     #si la persona solicitante no existe, se agrega quien genero el ticket, despues titular, si nadie tiene, se pone el tecnico
     people = [solicitante,elaboro,titular, config.NOMBRESTJ]
-    picker = page.locator('#combobox-id__21') 
+    picker = page.locator('#combobox-id__27') #persona solicitante
     for person in people:
         picker.fill(person)
         page.wait_for_timeout(6000)
