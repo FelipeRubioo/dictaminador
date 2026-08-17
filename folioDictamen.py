@@ -12,32 +12,41 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
     if(len(inventario)>0):
         inventarioFormato = f"ticket {folio}/{anio} con numero de inventario {inventario}"
     #esperar a que carguen todos los campos
-    page.wait_for_selector('#combobox-id__19') #elaborado por
-    page.wait_for_selector('#TextField21') #ticket de soporte
-    page.wait_for_selector('#combobox-id__27') #persona solicitante
-    page.wait_for_selector('#TextField29') #Unidad
-    page.wait_for_selector('#TextField35') #Descripcion de la falla
-    page.wait_for_selector('#TextField41') #Año
-    page.wait_for_selector('#TextField47') #Numero Inventario
+    page.wait_for_selector('[data-automationid="clientFormField-Elaboradopor"] input') #elaborado por
+    page.wait_for_selector('[data-automationid="clientFormField-TicketdeSoporte"] input') #ticket de soporte
+    page.wait_for_selector('[data-automationid="clientFormField-PersonaSolicitante"] input') #persona solicitante
+    page.wait_for_selector('[data-automationid="clientFormField-Unidad"] input') #Unidad
+    page.wait_for_selector('[data-automationid="clientFormField-Descripci_x00f3_ndelaFalla"] input') #Descripcion de la falla
+    page.wait_for_selector('[data-automationid="clientFormField-A_x00f1_o"] input') #Año
+    page.wait_for_selector('[data-automationid="clientFormField-NumeroOnventario"] input') #Numero Inventario
     page.wait_for_selector('#form-submit-button') #boton de enviar
+
+    #asignaciones
+    elaboradoInput = page.locator('[data-automationid="clientFormField-Elaboradopor"] input')
+    ticketInput = page.locator('[data-automationid="clientFormField-TicketdeSoporte"] input')
+    solicitanteInput = page.locator('[data-automationid="clientFormField-PersonaSolicitante"] input')
+    unidadInput = page.locator('[data-automationid="clientFormField-Unidad"] input')
+    descripcionInput = page.locator('[data-automationid="clientFormField-Descripci_x00f3_ndelaFalla"] input')
+    anioInput = page.locator('[data-automationid="clientFormField-A_x00f1_o"] input')
+    inventarioInput = page.locator('[data-automationid="clientFormField-NumeroOnventario"] input')
 
     #llenado de campos, primero los normales, despues los de cuentas
     #page.wait_for_timeout(200)
-    page.locator('#TextField29').fill(unidad) #unidad
-    page.locator('#TextField35').fill(descripcion) #descripcion de la fallas
-    page.locator('#TextField41').fill(anio) #año
-    page.locator('#TextField47').fill(inventarioFormato) #numero de inventario
+    unidadInput.fill(unidad) #unidad
+    descripcionInput.fill(descripcion) #descripcion de la fallas
+    anioInput.fill(anio) #año
+    inventarioInput.fill(inventarioFormato) #numero de inventario
     folioAnio = f"{folio}/{anio}"
     #page.wait_for_timeout(200)
-    page.locator('#TextField21').fill(folioAnio) #ticket de soporte
+    ticketInput.fill(folioAnio) #ticket de soporte
 
-    page.locator('#combobox-id__19').fill(config.NOMBRESTJ) #elaborado por
+    elaboradoInput.fill(config.NOMBRESTJ) #elaborado por
     page.wait_for_timeout(6000)
-    page.locator('#combobox-id__19').press('Enter')
+    elaboradoInput.press('Enter')
 
     #si la persona solicitante no existe, se agrega quien genero el ticket, despues titular, si nadie tiene, se pone el tecnico
     people = [solicitante,elaboro,titular, config.NOMBRESTJ]
-    picker = page.locator('#combobox-id__27') #persona solicitante
+    picker = page.locator('[data-automationid="clientFormField-PersonaSolicitante"] input') #persona solicitante
     for person in people:
         picker.fill(person)
         page.wait_for_timeout(6000)
