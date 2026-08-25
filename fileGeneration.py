@@ -74,6 +74,22 @@ def agregarTabla(doc: Document,solicitante,modelo,inventario,serie,fechaCompra):
         run = row.cells[1].paragraphs[0].runs[0]
         run.font.color.rgb = RGBColor(0, 0, 255)  # Blue
 
+def agregarImagenEquipo(doc: Document):
+    imgEquipoPath = Path(__file__).parent / "imagen_equipo.jpg"
+    if imgEquipoPath.exists():
+        try:
+            paragraph = doc.add_paragraph()
+            run = paragraph.add_run(f"\n{"imagen del equipo:"}")
+            run.font.size = Pt(11)
+
+            paragraph = doc.add_paragraph()
+            run = paragraph.add_run()
+            run.add_picture(str(imgEquipoPath), width=Cm(5))
+        finally:
+            # Eliminar la imagen después de agregarla al documento
+            imgEquipoPath.unlink()
+            print("Imagen de equipo eliminada después de agregarla al documento.")
+
 def agregarDiagnostico(doc: Document,diagnostico,imgDiagnosticoPath=""):
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(f"\n{diagnostico}")
@@ -141,6 +157,7 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     agregarTitular(doc,nombreTitular,puestoTitular,unidad)
     agregarIntroduccion(doc,folio,anio)
     agregarTabla(doc,solicitante,modelo,inventario,serie,fechaCompra)
+    agregarImagenEquipo(doc)
     agregarDiagnostico(doc,diagnostico,imgDiagnosticoPath)
     agregarConclusion(doc,tipoDictamen)
     agregarRecomendacion(doc,tipoDictamen,tipoBaja,componente,linkCompra)
