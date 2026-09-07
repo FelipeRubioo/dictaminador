@@ -79,7 +79,7 @@ def agregarImagenEquipo(doc: Document):
     if imgEquipoPath.exists():
         try:
             paragraph = doc.add_paragraph()
-            run = paragraph.add_run(f"\n{"imagen del equipo:"}")
+            run = paragraph.add_run(f"\n{"Imagen del equipo:"}")
             run.font.size = Pt(11)
 
             paragraph = doc.add_paragraph()
@@ -94,20 +94,21 @@ def agregarDiagnostico(doc: Document,diagnostico,imgDiagnosticoPath=""):
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(f"\n{diagnostico}")
     run.font.size = Pt(11)
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     if(len(imgDiagnosticoPath)>0):
         paragraph = doc.add_paragraph()
         run2 = paragraph.add_run()
         run2.add_picture(str(imgDiagnosticoPath),width=Cm(5))
 
-def agregarConclusion(doc: Document,tipoDictamen):
-    if tipoDictamen == "baja":
+def agregarConclusion(doc: Document,tipoDictamen,tipoBaja=""):
+    if tipoDictamen == "baja" and tipoBaja == "computadora":
         conclusion_text = f"El equipo listado es candidato para REEMPLAZO, dando seguimiento al oficio de 'Requisitos mínimos para equipos de cómputo' con referencia DGSC-285/2023 del 17 de octubre del 2023, donde cito: 'De igual manera, se establece que, para que los equipos actuales sean considerados candidatos a actualización de componentes como la RAM y el Disco Duro, deben cumplir con las siguientes características: una placa madre que soporte al menos 16GB de RAM, un procesador Core i3 de octava generación en adelante, y un tiempo de adquisición no mayor a 5 años'."
     if tipoDictamen == "actualizacion":
         conclusion_text = f"El equipo listado es candidato para ACTUALIZACION, dando seguimiento al oficio de 'Requisitos mínimos para equipos de cómputo' con referencia DGSC-285/2023 del 17 de octubre del 2023, donde cito: 'De igual manera, se establece que, para que los equipos actuales sean considerados candidatos a actualización de componentes como la RAM y el Disco Duro, deben cumplir con las siguientes características: una placa madre que soporte al menos 16GB de RAM, un procesador Core i3 de octava generación en adelante, y un tiempo de adquisición no mayor a 5 años'."
-
-    paragraph = doc.add_paragraph()
-    run = paragraph.add_run(conclusion_text)
-    run.font.size = Pt(11)
+        paragraph = doc.add_paragraph()
+        run = paragraph.add_run(conclusion_text)
+        run.font.size = Pt(11)
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 def agregarRecomendacion(doc: Document,tipoDictamen,tipoBaja = "",componente="",linkCompra = ""):
     equipoNuevo = ""
@@ -129,6 +130,7 @@ def agregarRecomendacion(doc: Document,tipoDictamen,tipoBaja = "",componente="",
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(recomendacion_text)
     run.font.size = Pt(11)
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 def agregarRemitente(doc: Document):
     stacked_text = f"\t\t\t{config.ABREVIATURA} {config.NOMBRESTJ}\n\t\tSupremo Tribunal de Justicia del Estado de Sonora\n\tDirección General de Tecnologías de la Información y la Comunicación"
@@ -137,13 +139,15 @@ def agregarRemitente(doc: Document):
     run.bold = True
     run.font.size = Pt(11)
 
-def agregarOficio(doc: Document):
-    text= "ANEXO OFICIO DGSC-285/2023"
-    oficio_path = Path(__file__).parent / "images" / "oficio.png"
+def agregarOficio(doc: Document,tipoDictamen="",tipoBaja=""):
+    #el oficio solo si el dictamen es de una computadora
+    if tipoDictamen == "actualizacion" or tipoBaja == "computadora":
+        text= "ANEXO OFICIO DGSC-285/2023"
+        oficio_path = Path(__file__).parent / "images" / "oficio.png"
 
-    paragraph = doc.add_paragraph()
-    run = paragraph.add_run(text)
-    run.add_picture(str(oficio_path))
+        paragraph = doc.add_paragraph()
+        run = paragraph.add_run(text)
+        run.add_picture(str(oficio_path))
 
 
 def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath="",tipoBaja="",componente="",linkCompra=""):
@@ -159,10 +163,10 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     agregarTabla(doc,solicitante,modelo,inventario,serie,fechaCompra)
     agregarImagenEquipo(doc)
     agregarDiagnostico(doc,diagnostico,imgDiagnosticoPath)
-    agregarConclusion(doc,tipoDictamen)
+    agregarConclusion(doc,tipoDictamen,tipoBaja)
     agregarRecomendacion(doc,tipoDictamen,tipoBaja,componente,linkCompra)
     agregarRemitente(doc)
-    agregarOficio(doc)
+    agregarOficio(doc,tipoDictamen,tipoBaja)
     
     #crea directorio con el numero del ticket
     target_dir = Path(fr"{config.DIRECTORIO}\{folio}-{anio}")

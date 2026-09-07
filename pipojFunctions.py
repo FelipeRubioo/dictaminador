@@ -1,3 +1,6 @@
+import base64
+from urllib.parse import urljoin
+
 import config
 
 def login(page):
@@ -74,7 +77,21 @@ def tomarDatosEquipo(page,numeroInventario="",numeroSerie=""):
           page.wait_for_selector('#MD_BuscarActivo_lblNumeroSerie')
           page.wait_for_selector('#MD_BuscarActivo_lblFechaCompra')
           page.wait_for_selector('#MD_BuscarActivo_lblClaveInventario')
-          
+          page.wait_for_selector('#MD_BuscarActivo_ImgActivo')
+
+          img_src = page.locator("#MD_BuscarActivo_ImgActivo").get_attribute("src")
+          if img_src:
+            # 1. Split off the header (everything before the comma)
+            header, base64_data = img_src.split(",", 1)
+
+            # 2. Decode the raw bytes
+            image_bytes = base64.b64decode(base64_data)
+    
+            # Guardar archivo
+            with open("imagen_equipo.jpg", "wb") as f:
+                f.write(image_bytes)
+                print("Imagen descargada con éxito.")
+            
           modelo = page.locator("#MD_BuscarActivo_lblModelo").text_content().strip()
           numeroSerie = page.locator("#MD_BuscarActivo_lblNumeroSerie").text_content().strip()
           fechaCompra= page.locator("#MD_BuscarActivo_lblFechaCompra").text_content().strip()

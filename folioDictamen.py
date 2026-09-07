@@ -24,7 +24,6 @@ def solicitarFolio(page,folio,anio,solicitante,unidad,descripcion,elaboro,invent
     #asignaciones
     elaboradoInput = page.locator('[data-automationid="clientFormField-Elaboradopor"] input')
     ticketInput = page.locator('[data-automationid="clientFormField-TicketdeSoporte"] input')
-    solicitanteInput = page.locator('[data-automationid="clientFormField-PersonaSolicitante"] input')
     unidadInput = page.locator('[data-automationid="clientFormField-Unidad"] input')
     descripcionInput = page.locator('[data-automationid="clientFormField-Descripci_x00f3_ndelaFalla"] input')
     anioInput = page.locator('[data-automationid="clientFormField-A_x00f1_o"] input')
