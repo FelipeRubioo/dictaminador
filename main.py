@@ -35,7 +35,10 @@ def submit():
         imgDiagnostico.save(imgDiagnosticoPath)
     componente = request.form["componente"]
     linkCompra = request.form["linkCompra"]
-
+    archivoJSON = request.files.get("archivo_json")
+    if archivoJSON and archivoJSON.filename != "":
+        archivoJSONPath = os.path.join(Path(__file__).parent, archivoJSON.filename)
+        archivoJSON.save(archivoJSONPath)
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False) #set true if dont want to see browser
@@ -63,7 +66,7 @@ def submit():
             numeroDictamen = folioDictamen.obtenerFolio(page4)
             
             #generar el dictamen
-            pdf_path = fileGeneration.generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath,tipoBaja,componente,linkCompra)
+            pdf_path = fileGeneration.generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath,tipoBaja,componente,linkCompra,descripcion,archivoJSONPath)
             Firma.firmarPDF(pdf_path)
             page = context.new_page()
             page.goto('https://pipoj.stjsonora.gob.mx/App/#',wait_until="domcontentloaded")

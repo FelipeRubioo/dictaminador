@@ -6,7 +6,7 @@ from datetime import datetime
 from docx.shared import Cm, Pt, RGBColor
 import config
 from docx2pdf import convert
-
+import json
 
 def get_spanish_month(month_number):
     months = [
@@ -48,23 +48,48 @@ def agregarTitular(doc: Document,nombreTitular, puestoTitular,unidad):
     run.bold = True
     run.font.size = Pt(12)
 
-def agregarIntroduccion(doc: Document,folio,anio):
-    stacked_text = f"En atención a la solicitud de Soporte Técnico {folio}/{anio}, se emite el presente dictamen."
+def agregarIntroduccion(doc: Document,folio,anio,descripcion):
+    stacked_text = f"En atención a la solicitud de Soporte Técnico {folio}/{anio}, donde indica '{descripcion}', se emite el presente dictamen."
     paragraph = doc.add_paragraph()
     run = paragraph.add_run(stacked_text)
     run.font.size = Pt(11)
 
-def agregarTabla(doc: Document,solicitante,modelo,inventario,serie,fechaCompra):
-    table = doc.add_table(rows=5, cols=2)
+def agregarTabla(doc: Document,solicitante,modelo,inventario,serie,fechaCompra,archivoJSONPath=""):
+    table = doc.add_table(rows=8, cols=2)
     table.style = 'Table Grid'
-
+    if archivoJSONPath and Path(archivoJSONPath).exists():
+        try:
+            with open(archivoJSONPath, 'r', encoding='utf-8-sig') as archivo:
+                json_content = json.load(archivo)
+            modelo = json_content['Equipo']['Modelo']
+            serie = json_content['Equipo']['NumeroSerie']
+            cpu = json_content['CPU']['Nombre']
+            
+            ram_total = json_content['RAM']['TotalGB']
+            ram_vel = json_content['RAM']['Modulos']['VelocidadMHz']
+            ram_formato = json_content['RAM']['Modulos']['Formato']
+            ram_tipo = json_content['RAM']['Modulos']['Tipo']
+            
+            ram = f"{ram_total}GB {ram_vel}MHz {ram_formato} {ram_tipo}"
+            
+            disco_tipo = json_content['DiscosDuros']['TipoMedio']
+            disco_tamano = json_content['DiscosDuros']['TamanoGB']
+            
+            disco = f"{disco_tipo} {disco_tamano}GB"
+        finally:
+            # Eliminar el archivo JSON después de leerlo
+            Path(archivoJSONPath).unlink()
+            print("Archivo JSON eliminado después de leerlo.")
     # Fill in the table with data
     data = [
         ("Usuario:", solicitante),
         ("Modelo:", modelo),
         ("Número de Inventario:", inventario),
         ("Número de Serie:", serie),
-        ("Fecha de Compra:", fechaCompra)
+        ("Fecha de Compra:", fechaCompra),
+        ("Procesador:", cpu),
+        ("Memoria RAM:", ram),
+        ("Disco Duro:", disco)
     ]
 
     for row, (label, value) in zip(table.rows, data):
@@ -150,7 +175,7 @@ def agregarOficio(doc: Document,tipoDictamen="",tipoBaja=""):
         run.add_picture(str(oficio_path))
 
 
-def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath="",tipoBaja="",componente="",linkCompra=""):
+def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,nombreTitular, puestoTitular,numeroDictamen,modelo,tipoDictamen,diagnostico,imgDiagnosticoPath="",tipoBaja="",componente="",linkCompra="",descripcion="",archivoJSONPath=""):
     #creates file
     doc = Document()
     #set global style
@@ -159,8 +184,8 @@ def generarDictamen(folio,anio,unidad,solicitante,inventario,serie,fechaCompra,n
     #make all changes to file
     agregarEncabezado(doc,numeroDictamen,folio,anio)
     agregarTitular(doc,nombreTitular,puestoTitular,unidad)
-    agregarIntroduccion(doc,folio,anio)
-    agregarTabla(doc,solicitante,modelo,inventario,serie,fechaCompra)
+    agregarIntroduccion(doc,folio,anio,descripcion)
+    agregarTabla(doc,solicitante,modelo,inventario,serie,fechaCompra,archivoJSONPath)
     agregarImagenEquipo(doc)
     agregarDiagnostico(doc,diagnostico,imgDiagnosticoPath)
     agregarConclusion(doc,tipoDictamen,tipoBaja)
